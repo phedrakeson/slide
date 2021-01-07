@@ -51,11 +51,35 @@ export default class Slide {
     const movetype = (event.type === 'mouseup' ? 'mousemove' : 'touchmove');
     this.wrapper.removeEventListener(movetype, this.onMove);
     this.dist.finalPosition = this.dist.movePosition;
-
-
   }
 
+  slidePosition(slide) {
+    const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2;
+    return -(slide.offsetLeft - margin);
+  }
 
+  slidesConfig() {
+    this.slideArray = [...this.slide.children].map((element) => {
+      const position = this.slidePosition(element);
+      return { element, position }
+    });
+  }
+
+  slidesIndexNav(index) {
+    const lastIndex = this.slideArray.length - 1;    
+    this.index = {
+      prev: index ? index - 1 : undefined,
+      active: index,
+      next: index === lastIndex ? undefined : index + 1,
+    }
+  }
+
+  changeSlide(index) {
+    const activeSlide = this.slideArray[index];
+    this.moveSlide(activeSlide.position);
+    this.slidesIndexNav(index);
+    this.dist.finalPosition = activeSlide.position;
+  }
 
   bindEvents() {
     this.onStart = this.onStart.bind(this);
@@ -64,6 +88,7 @@ export default class Slide {
   }
 
   init() {
+    this.slidesConfig();
     this.bindEvents();
     this.addSlideEvents();
 
